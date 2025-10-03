@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hors ligne — Dvlp FE Avancé - Cam PWA</title>
+  <link rel="icon" href="/icons/icon-192.png" />
+  <meta name="theme-color" content="#111827" />
+  <style>
+    :root{
+      --bg:#ffffff; --fg:#0f172a; --muted:#64748b; --card:#f8fafc; --accent:#111827;
+      --bad:#ef4444; --good:#22c55e; --border:#e5e7eb;
+    }
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg:#0b0f19; --fg:#e5e7eb; --muted:#94a3b8; --card:#0f172a; --accent:#e5e7eb;
+        --border:#1f2937;
+      }
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:var(--bg); color:var(--fg); font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial,sans-serif;
+      line-height:1.5;
+    }
+    .wrap{max-width:760px; margin:0 auto; padding:24px}
+    header{
+      display:flex; align-items:center; gap:12px; margin-bottom:16px;
+    }
+    header img{width:40px; height:40px; border-radius:8px}
+    .title{font-weight:700; font-size:1.125rem}
+    .status{margin-left:auto; display:flex; align-items:center; gap:8px; font-size:.9rem; color:var(--muted)}
+    .dot{width:10px; height:10px; border-radius:999px; background:var(--bad); box-shadow:0 0 0 2px rgba(239,68,68,.2)}
+    .online .dot{background:var(--good); box-shadow:0 0 0 2px rgba(34,197,94,.2)}
+    .card{
+      background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; margin:16px 0;
+    }
+    h1{margin:.2rem 0 0.2rem 0; font-size:1.4rem}
+    h2{margin:.2rem 0 .6rem 0; font-size:1.1rem}
+    p{margin:.4rem 0}
+    .actions{display:flex; gap:10px; flex-wrap:wrap; margin:12px 0}
+    .btn{
+      appearance:none; border:1px solid var(--border); background:var(--accent); color:var(--bg);
+      padding:10px 14px; border-radius:10px; font-weight:600; cursor:pointer;
+    }
+    .btn.secondary{
+      background:transparent; color:var(--fg);
+    }
+    .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:10px}
+    .thumb{width:100%; height:100%; object-fit:cover; border-radius:10px; border:1px solid var(--border)}
+    .muted{color:var(--muted)}
+    footer{margin-top:24px; color:var(--muted); font-size:.85rem}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <img src="/icons/icon-192.png" alt="" />
+      <div class="title">Dvlp FE Avancé – Cam PWA</div>
+      <div class="status">
+        <span id="state">Hors ligne</span>
+        <span class="dot" id="dot" aria-hidden="true"></span>
+      </div>
+    </header>
+
+    <section class="card" aria-live="polite">
+      <h1>Vous êtes hors ligne</h1>
+      <p>Certaines fonctionnalités (caméra en direct, envoi réseau) sont indisponibles.
+        Le contenu mis en cache reste accessible.</p>
+      <div class="actions">
+        <a class="btn" href="/">Retour à l’accueil</a>
+        <button class="btn secondary" id="retry">Réessayer</button>
+      </div>
+      <p class="muted">Astuce : dès que la connexion revient, cette page tentera de vous
+        renvoyer automatiquement vers l’application.</p>
+    </section>
+
+    <section class="card">
+      <h2>Galerie locale (stockée dans le navigateur)</h2>
+      <div id="photos" class="grid" role="list"></div>
+      <p class="muted" style="margin-top:8px">Les photos affichées ici proviennent de votre
+        <code>localStorage</code> et sont visibles même hors connexion.</p>
+    </section>
+
+    <footer>
+      <p>Cette page hors-ligne est fournie par le Service Worker (PWA).
+         Elle est servie en fallback quand le réseau est indisponible.</p>
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      // Status + redirection quand le réseau revient
+      function setStatus(){
+        var online = navigator.onLine;
+        document.documentElement.classList.toggle('online', online);
+        document.getElementById('state').textContent = online ? 'En ligne' : 'Hors ligne';
+      }
+      setStatus();
+      addEventListener('online', function(){
+        setStatus();
+        // petite latence pour laisser le SW se réactiver
+        setTimeout(function(){ location.href = '/'; }, 800);
+      });
+      addEventListener('offline', setStatus);
+
+      document.getElementById('retry').addEventListener('click', function(){
+        location.reload();
+      });
+
+      // Affichage des photos locales (Data URLs) depuis localStorage
+      try {
+        var raw = localStorage.getItem('pwa_photos');
+        var list = raw ? JSON.parse(raw) : [];
+        var box = document.getElementById('photos');
+        if (!Array.isArray(list) || list.length === 0) {
+          var p = document.createElement('p');
+          p.className = 'muted';
+          p.textContent = 'Aucune photo en cache pour le moment.';
+          box.appendChild(p);
+        } else {
+          list.forEach(function (src) {
+            var img = new Image();
+            img.loading = 'lazy';
+            img.decoding = 'async';
+            img.src = src;
+            img.alt = 'Photo locale';
+            img.className = 'thumb';
+            box.appendChild(img);
+          });
+        }
+      } catch (e) {
+        // silencieux : le localStorage peut être indisponible (mode privé strict)
+      }
+    })();
+  </script>
+</body>
+</html>

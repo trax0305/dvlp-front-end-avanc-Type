@@ -1,0 +1,17 @@
+// tsconfig.json
+{
+  // https://nuxt.com/docs/guide/concepts/typescript
+  "compilerOptions": {
+    // Types pour @vite-pwa/nuxt (clé `pwa` dans nuxt.config) et client PWA
+    "types": ["vite-plugin-pwa/client", "@vite-pwa/nuxt"],
+    // (optionnel mais utile)
+    "skipLibCheck": true
+  },
+  "files": [],
+  "references": [
+    { "path": "./.nuxt/tsconfig.app.json" },
+    { "path": "./.nuxt/tsconfig.server.json" },
+    { "path": "./.nuxt/tsconfig.shared.json" },
+    { "path": "./.nuxt/tsconfig.node.json" }
+  ]
+}
