@@ -7,16 +7,22 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "socket": "nodemon server/socket.mjs"
   },
   "dependencies": {
     "@pinia/nuxt": "^0.11.2",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
     "nuxt": "^4.1.2",
     "pinia": "^3.0.3",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
     "vue": "^3.5.22",
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
-    "@vite-pwa/nuxt": "^1.0.4"
+    "@vite-pwa/nuxt": "^1.0.4",
+    "nodemon": "^3.1.10"
   }
 }

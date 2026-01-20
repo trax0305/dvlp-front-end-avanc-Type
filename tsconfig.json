@@ -2,9 +2,16 @@
 {
   // https://nuxt.com/docs/guide/concepts/typescript
   "compilerOptions": {
-    // Types pour @vite-pwa/nuxt (clé `pwa` dans nuxt.config) et client PWA
-    "types": ["vite-plugin-pwa/client", "@vite-pwa/nuxt"],
-    // (optionnel mais utile)
+    "baseUrl": ".",                         // ✅ nécessaire pour les paths
+    "paths": {                              // ✅ alias Nuxt
+      "~/*": ["./*"],
+      "@/*": ["./*"]
+    },
+    "types": [                              // ✅ charge les types Nuxt + PWA
+      "nuxt",
+      "vite-plugin-pwa/client",
+      "@vite-pwa/nuxt"
+    ],
     "skipLibCheck": true
   },
   "files": [],
