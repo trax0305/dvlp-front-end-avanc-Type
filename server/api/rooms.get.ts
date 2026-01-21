@@ -11,7 +11,8 @@ type RoomsDoc = {
 export default defineEventHandler(async (event) => {
   const { public: { apiBase } } = useRuntimeConfig(event)
 
-  const res = await $fetch<RoomsDoc>(`${apiBase}/socketio/api/rooms`, { method: 'GET' })
+  const base = (apiBase || '').replace(/\/+$/, '')
+  const res = await $fetch<RoomsDoc>(`${base}/socketio/api/rooms`, { method: 'GET' })
 
   const data = res?.data ?? {}
   const rooms = Object.keys(data)

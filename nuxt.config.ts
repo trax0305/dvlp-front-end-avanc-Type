@@ -1,5 +1,6 @@
 // nuxt.config.ts
 import { defineNuxtConfig } from 'nuxt/config'
+
 const isProd = process.env.NODE_ENV === 'production'
 
 export default defineNuxtConfig({
@@ -9,15 +10,21 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      // ✅ en dev: mets "/" pour passer par le proxy vite (same-origin => pas de CORS)
-      socketUrl: process.env.NUXT_PUBLIC_SOCKET_URL || '/',
+      // ✅ PROD: same-origin pour éviter CORS (Nginx proxy /socket.io -> api.tools.gavago.fr)
+      // ✅ DEV: pareil (Vite proxy /socket.io -> api.tools.gavago.fr)
+      socketUrl: isProd ? '/' : (process.env.NUXT_PUBLIC_SOCKET_URL || '/'),
+
       appUrl: process.env.NUXT_PUBLIC_APP_URL || 'http://localhost:3000',
-      // ✅ idem pour fetch API : on passera par "/socketio/api" qui sera proxifié
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || '/socketio/api',
-    }
+
+      // ✅ DEV: "/socketio/api" (proxy vite)
+      // ✅ PROD: URL absolue vers l'API du prof
+      apiBase:
+        process.env.NUXT_PUBLIC_API_BASE ||
+        (isProd ? 'https://api.tools.gavago.fr' : '/socketio/api'),
+    },
   },
 
-  // ✅ PROXY DEV (vite)
+  // ✅ PROXY DEV (vite uniquement)
   vite: {
     server: {
       proxy: {
@@ -35,8 +42,8 @@ export default defineNuxtConfig({
           changeOrigin: true,
           secure: true,
         },
-      }
-    }
+      },
+    },
   },
 
   pwa: {
@@ -51,9 +58,10 @@ export default defineNuxtConfig({
       theme_color: '#111827',
       icons: [
         { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-        { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' }
-      ]
+        { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+      ],
     },
-    workbox: isProd ? { navigateFallback: '/offline.html' } : {}
-  }
+    workbox: isProd ? { navigateFallback: '/offline.html' } : {},
+  },
 })
+
